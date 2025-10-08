@@ -1,0 +1,54 @@
+# ==== Configuration ====
+CC      := gcc
+CFLAGS  := -std=c11 -Wall -Wextra -O2
+LEX     := flex
+AR      := ar
+ARFLAGS := rcs
+
+# ==== Directories ====
+SRC_DIR := src
+BUILD_DIR := build
+BIN_DIR := $(BUILD_DIR)/bin
+
+# ==== Files ====
+SRC_MAIN   := $(SRC_DIR)/netpbm.c
+SRC_LEX    := $(SRC_DIR)/netpbm.ll
+LEX_C      := $(BUILD_DIR)/lex.yy.c
+OBJ_MAIN   := $(BUILD_DIR)/netpbm.o
+OBJ_LEX    := $(BUILD_DIR)/netpbm_lex.o
+LIB_NAME   := $(BUILD_DIR)/libnetpbm.a
+EXE_NAME   := $(BIN_DIR)/netpbm
+
+# ==== Default target ====
+all: $(EXE_NAME)
+
+# ==== Rule: build executable ====
+$(EXE_NAME): $(OBJ_MAIN) $(OBJ_LEX) | $(BIN_DIR)
+	$(CC) $(CFLAGS) -o $@ $^
+
+# ==== Rule: build static library ====
+$(LIB_NAME): $(OBJ_LEX) | $(BUILD_DIR)
+	$(AR) $(ARFLAGS) $@ $^
+
+# ==== Compile C sources ====
+$(BUILD_DIR)/%.o: $(SRC_DIR)/%.c $(SRC_DIR)/netpbm.h | $(BUILD_DIR)
+	$(CC) $(CFLAGS) -c $< -o $@
+
+# ==== Generate and compile lex source ====
+$(OBJ_LEX): $(SRC_LEX) $(SRC_DIR)/netpbm.h | $(BUILD_DIR)
+	$(LEX) -o $(LEX_C) $(SRC_LEX)
+	$(CC) $(CFLAGS) -Wno-implicit-function-declaration -Wno-unused-function -c $(LEX_C) -o $@ -I$(SRC_DIR)
+
+# ==== Directory creation ====
+$(BUILD_DIR):
+	mkdir -p $(BUILD_DIR)
+
+$(BIN_DIR):
+	mkdir -p $(BIN_DIR)
+
+# ==== Clean ====
+clean:
+	rm -rf $(BUILD_DIR)
+
+.PHONY: all clean lib
+lib: $(LIB_NAME)
