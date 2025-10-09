@@ -13,9 +13,11 @@ void print_usage(const char *exe_name) {
          "Usage:\n"
          "  %s info   <filename_in>\n"
          "  %s load   <filename_in> save <filename_out>\n"
+         "  %s togray <filename_in> save <filename_out>\n"
+         "  %s torgb  <filename_in> save <filename_out>\n"
          "  %s create <filename_out> <w> <h> <mode>\n"
-         "  (mode is 'bit', 'gray' or 'rgb')\n",
-         exe_name, exe_name, exe_name);
+         "            (mode is 'bit', 'gray' or 'rgb')\n",
+         exe_name, exe_name, exe_name, exe_name, exe_name);
 }
 
 netpbm_image_t *netpbm_create(size_t w, size_t h, netpbm_mode_t mode,
@@ -27,6 +29,11 @@ netpbm_image_t *netpbm_create(size_t w, size_t h, netpbm_mode_t mode,
 
   if (max_val == 0) {
     printf("Error: Max value must be greater than 0\n");
+    return NULL;
+  }
+
+  if (max_val > 255) {
+    printf("Error: Max value must be lower than 256\n");
     return NULL;
   }
 
@@ -112,6 +119,88 @@ int netpbm_save(netpbm_image_t *image, const char *filename) {
   return 0;
 }
 
+int netpbm_togray(netpbm_image_t *image) {
+  switch (image->mode) {
+  case BIT:
+    image->max_val = 255;
+    for (size_t i = 0; i < image->w * image->h; i++) {
+      image->data[i] *= image->max_val;
+    }
+    image->mode = GRAY;
+    break;
+  case GRAY:
+    break;
+  case RGB:
+    for (size_t i = 0; i < image->w * image->h; i++) {
+      image->data[i] = (image->data[3 * i] + image->data[3 * i + 1] +
+                        image->data[3 * i + 2]) /
+                       3;
+    }
+    image->mode = GRAY;
+    break;
+  default:
+    printf("Error: Unknown image mode when trying to convert to gray mode\n");
+    return -1;
+  }
+
+  return 0;
+}
+
+int netpbm_torgb(netpbm_image_t *image) {
+  switch (image->mode) {
+  case BIT:
+    if (image->w * image->h > SIZE_MAX / 3) {
+      printf("Error: Image is too big\n");
+      return -1;
+    }
+
+    image->data =
+        realloc(image->data, image->w * image->h * 3 * sizeof(uint16_t));
+    if (image->data == NULL) {
+      printf("Error: Could not allocate memory for image data\n");
+      return -1;
+    }
+
+    image->max_val = 255;
+    for (size_t i = image->w * image->h; i > 0; i--) {
+      image->data[3 * (i - 1) + 0] = image->data[i] * image->max_val;
+      image->data[3 * (i - 1) + 1] = image->data[i] * image->max_val;
+      image->data[3 * (i - 1) + 2] = image->data[i] * image->max_val;
+    }
+    image->mode = RGB;
+
+    break;
+  case GRAY:
+    if (image->w * image->h > SIZE_MAX / 3) {
+      printf("Error: Image is too big\n");
+      return -1;
+    }
+
+    image->data =
+        realloc(image->data, image->w * image->h * 3 * sizeof(uint16_t));
+    if (image->data == NULL) {
+      printf("Error: Could not allocate memory for image data\n");
+      return -1;
+    }
+
+    for (size_t i = image->w * image->h; i > 0; i--) {
+      image->data[3 * (i - 1) + 0] = image->data[i];
+      image->data[3 * (i - 1) + 1] = image->data[i];
+      image->data[3 * (i - 1) + 2] = image->data[i];
+    }
+    image->mode = RGB;
+
+    break;
+  case RGB:
+    break;
+  default:
+    printf("Error: Unknown image mode when trying to convert to gray mode\n");
+    return -1;
+  }
+
+  return 0;
+}
+
 void netpbm_destroy(netpbm_image_t *image) {
   free(image->data);
   free(image);
@@ -163,6 +252,64 @@ int main(int argc, char **argv) {
       netpbm_image_t *image = netpbm_open(filename_in);
       if (image == NULL) {
         printf("Error: Could not read input file %s\n", filename_in);
+        return EXIT_SUCCESS;
+      }
+
+      if (netpbm_save(image, filename_out) == -1) {
+        printf("Error: Could not save image\n");
+        netpbm_destroy(image);
+        return EXIT_SUCCESS;
+      }
+
+      netpbm_destroy(image);
+
+      return EXIT_SUCCESS;
+    }
+  }
+
+  if (strcmp(argv[1], "togray") == 0 && argc >= 4) {
+    if (strcmp(argv[3], "save") == 0 && argc == 5) {
+      const char *filename_in = argv[2];
+      const char *filename_out = argv[4];
+
+      netpbm_image_t *image = netpbm_open(filename_in);
+      if (image == NULL) {
+        printf("Error: Could not read input file %s\n", filename_in);
+        return EXIT_SUCCESS;
+      }
+
+      if (netpbm_togray(image) == -1) {
+        printf("Error: Could not convert image to gray mode\n");
+        netpbm_destroy(image);
+        return EXIT_SUCCESS;
+      }
+
+      if (netpbm_save(image, filename_out) == -1) {
+        printf("Error: Could not save image\n");
+        netpbm_destroy(image);
+        return EXIT_SUCCESS;
+      }
+
+      netpbm_destroy(image);
+
+      return EXIT_SUCCESS;
+    }
+  }
+
+  if (strcmp(argv[1], "torgb") == 0 && argc >= 4) {
+    if (strcmp(argv[3], "save") == 0 && argc == 5) {
+      const char *filename_in = argv[2];
+      const char *filename_out = argv[4];
+
+      netpbm_image_t *image = netpbm_open(filename_in);
+      if (image == NULL) {
+        printf("Error: Could not read input file %s\n", filename_in);
+        return EXIT_SUCCESS;
+      }
+
+      if (netpbm_torgb(image) == -1) {
+        printf("Error: Could not convert image to rgb mode\n");
+        netpbm_destroy(image);
         return EXIT_SUCCESS;
       }
 

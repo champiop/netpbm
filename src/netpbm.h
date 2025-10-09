@@ -43,6 +43,14 @@ netpbm_image_t *netpbm_open(const char *filename);
 // Returns -1 on error, 0 on success
 int netpbm_save(netpbm_image_t *image, const char *filename);
 
+// Changes image mode to gray mode
+// Returns -1 on error, 0 on success
+int netpbm_togray(netpbm_image_t *image);
+
+// Changes image mode to color mode
+// Returns -1 on error, 0 on success
+int netpbm_torgb(netpbm_image_t *image);
+
 // Frees data allocated by image
 void netpbm_destroy(netpbm_image_t *image);
 
