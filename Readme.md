@@ -4,18 +4,18 @@ A lightweight C library for reading, writing, and manipulating **Netpbm image fo
 
 ## Table of Contents
 
-- [About]()
-- [Features]()
-- [Installation]()
-- [Usage Overview]()
-- [Public API]
-    - [Image Creation and Destruction]()
-    - [File I/O]()
-    - [Mode Conversion]()
-- [Examples]()
-- [Future Directions]()
-- [Contributing]()
-- [License]()
+- [About](#about)
+- [Features](#features)
+- [Installation](#installation)
+- [Usage Overview](#usage-overview)
+- [Public API](#public-api)
+    - [Image Creation and Destruction](#image-creation-and-destruction)
+    - [File I/O](#file-io)
+    - [Mode Conversion](#mode-conversion)
+- [Examples](#examples)
+- [Future Directions](future-directions)
+- [Contributing](contributing)
+- [License](license)
 
 ## About
 
@@ -38,23 +38,23 @@ The library focuses on the raw binary encoding. It is meant to be a helper libra
 
 Clone and build using `make`:
 
-`
+```bash
     git clone https://github.com/champiop/netpbm.git
     cd netpbm
     make
-`
+```
 
 Include the header in your project:
 
-`
+```c
     #include "netpbm.h"
-`
+```
 
 Compile and link with your project:
 
-`
+```bash
     gcc -o example example.c -I/path/to/netpbm -L/path/to/netpbm -lnetpbm
-`
+```
 
 ## Usage Overview
 
@@ -80,3 +80,123 @@ Returns:
 - Pointer to a new image on success
 - `NULL` on allocation error
 
+---
+
+`void netpbm_destroy(netpbm_image_t *image);`
+
+Frees memory and resources associated with an image.
+Not safe to call with `NULL`.
+
+### File I/O
+
+`netpbm_image_t *netpbm_open(const char *filename);`
+
+Opens a Netpbm file (`.pbm`, `.pgm`, `.ppm`) and returns a new image object.
+
+Returns:
+
+- Pointer to the image object on success
+- `NULL` on read or format error
+
+---
+
+`int netpbm_save(netpbm_image_t *image, const char *filename);`
+
+Saves the given image to the specified file in the correct Netpbm format.
+
+Returns:
+
+- `0` on success
+- `-1` on I/O or format error
+
+### Mode Conversion
+
+`int netpbm_togray(netpbm_image_t *image);`
+
+Converts the image to grayscale (PGM).
+
+- RGB images are converted averaging the color samples.
+- Bitmaps are promoted to grayscale with maximum sample value of 255.
+
+Returns:
+
+- `0` on success
+- `-1` on error (unknown initial color mode)
+
+---
+
+`int netpbm_torgb(netpbm_image_t *image);`
+
+Converts the image to RGB color (PPM).
+
+- Grayscale images are expanded to three channels.
+- Bitmaps are promoted to rgb with maximum sample value of 255.
+
+Returns:
+
+- `0` on success
+- `-1` on error (buffer size overflow or unknown initial color mode)
+
+## Examples
+
+```c
+#include "netpbm.h"
+#include <stdio.h>
+
+int main(void) {
+    // Create a 100x100 grayscale image with 8-bit samples
+    netpbm_image_t *img = netpbm_create(100, 100, GRAY, 255);
+    if (!img) {
+        fprintf(stderr, "Failed to create image\n");
+        return 1;
+    }
+
+    // (Modify pixels here...)
+
+    // Save to file
+    if (netpbm_save(img, "output.pgm") != 0) {
+        fprintf(stderr, "Failed to save image\n");
+    }
+
+    netpbm_destroy(img);
+    return 0;
+}
+```
+
+To load and convert:
+
+```c
+netpbm_image_t *img = netpbm_open("input.ppm");
+if (img) {
+    netpbm_togray(img);
+    netpbm_save(img, "gray.pgm");
+    netpbm_destroy(img);
+}
+```
+
+## Future Directions
+
+- Treat netpbm_image_t and netpbm_mode_t as opaque in public headers
+- Add accessor functions (`netpbm_get_width`, `netpbm_get_height`, etc.)
+- Support for PAM and alpha channel
+- Extend the maximum sample value to 65535 (2 bytes) to match the standard
+- Optional plain ASCII format support
+
+## Contributing
+
+Contributions are welcome!
+- Add more format variants
+- Extend conversions functions
+- Add test coverage
+
+Submit a pull request or open an issue.
+
+## License
+
+This project is licensed under the [MIT License](LICENSE).
+
+You are free to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of this software, provided that you include the original copyright notice
+and this permission notice in all copies or substantial portions of the software.
+
+See the [LICENSE](LICENSE) file for full details.
