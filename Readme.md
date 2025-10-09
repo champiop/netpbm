@@ -13,9 +13,9 @@ A lightweight C library for reading, writing, and manipulating **Netpbm image fo
     - [File I/O](#file-io)
     - [Mode Conversion](#mode-conversion)
 - [Examples](#examples)
-- [Future Directions](future-directions)
-- [Contributing](contributing)
-- [License](license)
+- [Future Directions](#future-directions)
+- [Contributing](#contributing)
+- [License](#license)
 
 ## About
 
