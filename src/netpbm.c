@@ -1,6 +1,7 @@
 #include "netpbm.h"
 
 #include <linux/limits.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -89,8 +90,15 @@ int netpbm_save(netpbm_image_t *image, const char *filename) {
   fprintf(f, "%d\n", image->max_val);
 
   size_t total = image->w * image->h * (image->mode == RGB ? 3 : 1);
-  for (size_t i = 0; i < total; i++) {
-    fputc((char)image->data[i], f);
+  if (image->max_val < 256) {
+    for (size_t i = 0; i < total; i++) {
+      fputc((uint8_t)image->data[i], f);
+    }
+  } else {
+    for (size_t i = 0; i < total; i++) {
+      fputc((uint8_t)(image->data[i] >> 8), f);
+      fputc((uint8_t)(image->data[i] & 0x00ff), f);
+    }
   }
 
   fclose(f);
