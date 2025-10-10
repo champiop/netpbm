@@ -84,7 +84,7 @@ netpbm_image_t* parse_header() {
     return NULL;
   }
 
-  if (errno == ERANGE || value > 255) {
+  if (errno == ERANGE || value > UINT16_MAX) {
     printf("Error: %s is out of range for max value\n", yytext);
     return NULL;
   }
@@ -108,11 +108,23 @@ int parse_data(netpbm_image_t *image) {
     return 0;
 
   size_t total = image->w * image->h * (image->mode == RGB ? 3 : 1);
-  for (size_t i = 0; i < total; i++) {
-    image->data[i] = input();
-    if (image->data[i] > image->max_val) {
-      printf("Error: Found a data sample greater than indicated maximum value");
-      return -1;
+  if (image->max_val < 256) {
+    for (size_t i = 0; i < total; i++) {
+      image->data[i] = input();
+      if (image->data[i] > image->max_val) {
+        printf("Error: Found a data sample greater than indicated maximum value");
+        return -1;
+      }
+    }
+  } else {
+    for (size_t i = 0; i < total; i++) {
+      uint16_t msb = input();
+      uint16_t lsb = input();
+      image->data[i] = (msb << 8) | lsb;
+      if (image->data[i] > image->max_val) {
+        printf("Error: Found a data sample greater than indicated maximum value");
+        return -1;
+      }
     }
   }
 

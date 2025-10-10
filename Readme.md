@@ -179,7 +179,6 @@ if (img) {
 - Treat netpbm_image_t and netpbm_mode_t as opaque in public headers
 - Add accessor functions (`netpbm_get_width`, `netpbm_get_height`, etc.)
 - Support for PAM and alpha channel
-- Extend the maximum sample value to 65535 (2 bytes) to match the standard
 - Optional plain ASCII format support
 
 ## Contributing

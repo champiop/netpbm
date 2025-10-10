@@ -32,11 +32,6 @@ netpbm_image_t *netpbm_create(size_t w, size_t h, netpbm_mode_t mode,
     return NULL;
   }
 
-  if (max_val > 255) {
-    printf("Error: Max value must be lower than 256\n");
-    return NULL;
-  }
-
   if (mode == BIT && max_val != 1) {
     printf("Warning: For image mode BIT max value should be 1\n"
            "         Ignoring given value\n");
