@@ -1,10 +1,7 @@
 #include "netpbm.h"
 
-#include <errno.h>
 #include <linux/limits.h>
-#include <stddef.h>
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 
 netpbm_image_t *netpbm_create(size_t w, size_t h, netpbm_mode_t mode,
