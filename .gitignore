@@ -3,3 +3,4 @@ tests/bin
 *.ppm
 *.pbm
 *.pgm
+compile_flags.txt
