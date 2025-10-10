@@ -185,7 +185,7 @@ if (img) {
 
 Contributions are welcome!
 - Add more format variants
-- Extend conversions functions
+- Extend conversion functions
 - Add test coverage
 
 Submit a pull request or open an issue.
