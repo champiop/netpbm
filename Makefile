@@ -9,6 +9,7 @@ ARFLAGS := rcs
 SRC_DIR := src
 BUILD_DIR := build
 BIN_DIR := $(BUILD_DIR)/bin
+INCLUDE_DIR := include
 
 # ==== Files ====
 SRC_MAIN   := $(SRC_DIR)/netpbm.c
@@ -31,13 +32,13 @@ $(LIB_NAME): $(OBJ_LEX) | $(BUILD_DIR)
 	$(AR) $(ARFLAGS) $@ $^
 
 # ==== Compile C sources ====
-$(BUILD_DIR)/%.o: $(SRC_DIR)/%.c $(SRC_DIR)/netpbm.h | $(BUILD_DIR)
-	$(CC) $(CFLAGS) -c $< -o $@
+$(BUILD_DIR)/%.o: $(SRC_DIR)/%.c $(INCLUDE_DIR)/netpbm.h | $(BUILD_DIR)
+	$(CC) $(CFLAGS) -c $< -o $@ -I$(INCLUDE_DIR)
 
 # ==== Generate and compile lex source ====
-$(OBJ_LEX): $(SRC_LEX) $(SRC_DIR)/netpbm.h | $(BUILD_DIR)
+$(OBJ_LEX): $(SRC_LEX) $(INCLUDE_DIR)/netpbm.h | $(BUILD_DIR)
 	$(LEX) -o $(LEX_C) $(SRC_LEX)
-	$(CC) $(CFLAGS) -Wno-implicit-function-declaration -Wno-unused-function -c $(LEX_C) -o $@ -I$(SRC_DIR)
+	$(CC) $(CFLAGS) -Wno-implicit-function-declaration -Wno-unused-function -c $(LEX_C) -o $@ -I$(INCLUDE_DIR)
 
 # ==== Directory creation ====
 $(BUILD_DIR):
