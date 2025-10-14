@@ -70,6 +70,10 @@ uint16_t netpbm_get_raw(netpbm_image_t *image, size_t idx);
 uint16_t netpbm_get(netpbm_image_t *image, size_t x, size_t y,
                     netpbm_channel_t c);
 
+// Copy image data into dst
+// User must allocate the buffer first
+void netpbm_clone_data(netpbm_image_t *image, uint16_t *dst);
+
 // Modifiers
 
 // Set the value at raw index idx

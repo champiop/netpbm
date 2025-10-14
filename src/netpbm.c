@@ -194,6 +194,14 @@ uint16_t netpbm_get(netpbm_image_t *image, size_t x, size_t y,
   }
 }
 
+void netpbm_clone_data(netpbm_image_t *image, uint16_t *dst) {
+  if (image->mode == NETPBM_MODE_UNKNOWN)
+    return;
+  memcpy(dst, image->data,
+         image->w * image->h * (image->mode == NETPBM_MODE_RGB ? 3 : 1) *
+             sizeof(uint16_t));
+}
+
 // Modifiers
 
 int netpbm_set_raw(netpbm_image_t *image, size_t idx, uint16_t value) {
