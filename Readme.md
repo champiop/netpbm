@@ -67,8 +67,6 @@ A typical workflow:
 
 ## Public API
 
-> ⚠️Note: The internal layout of `netpbm_image_t` and `netpbm_mode_t` should be treated as **opaque**. Only manipulate the data structure through defined functions. Future versions may hide these definitions behind accessors.
-
 ### Image Creation and Destruction
 
 `netpbm_image_t *netpbm_create(size_t w, size_t h, netpbm_mode_t mode, uint16_t max_val);`
@@ -176,8 +174,6 @@ if (img) {
 
 ## Future Directions
 
-- Treat netpbm_image_t and netpbm_mode_t as opaque in public headers
-- Add accessor functions (`netpbm_get_width`, `netpbm_get_height`, etc.)
 - Support for PAM and alpha channel
 - Optional plain ASCII format support
 
