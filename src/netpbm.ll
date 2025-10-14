@@ -24,13 +24,13 @@ netpbm_image_t* parse_header() {
 
   netpbm_mode_t mode;
   if (yytext[1] == '4')
-    mode = BIT;
+    mode = NETPBM_MODE_BIT;
   else if (yytext[1] == '5')
-    mode = GRAY;
+    mode = NETPBM_MODE_GRAY;
   else if (yytext[1] == '6')
-    mode = RGB;
+    mode = NETPBM_MODE_RGB;
   else
-    mode = UNKNOWN;
+    mode = NETPBM_MODE_UNKNOWN;
 
   char *end = NULL;
   unsigned long long value = 0;
@@ -104,14 +104,19 @@ netpbm_image_t* parse_header() {
 // Tries to read netpbm image data and updates data field
 // Returns -1 on error, or 0 on success
 int parse_data(netpbm_image_t *image) {
-  if (image->w == 0 || image->h == 0)
+  size_t w = netpbm_get_width(image);
+  size_t h = netpbm_get_height(image);
+  netpbm_mode_t mode = netpbm_get_mode(image);
+  uint16_t max_val = netpbm_get_max_val(image);
+
+  if (w == 0 || h == 0)
     return 0;
 
-  size_t total = image->w * image->h * (image->mode == RGB ? 3 : 1);
-  if (image->max_val < 256) {
+  size_t total = w * h * (mode == NETPBM_MODE_RGB ? 3 : 1);
+  if (max_val < 256) {
     for (size_t i = 0; i < total; i++) {
-      image->data[i] = input();
-      if (image->data[i] > image->max_val) {
+      netpbm_set_raw(image, i, input());
+      if (netpbm_get_raw(image, i) > max_val) {
         printf("Error: Found a data sample greater than indicated maximum value");
         return -1;
       }
@@ -120,8 +125,8 @@ int parse_data(netpbm_image_t *image) {
     for (size_t i = 0; i < total; i++) {
       uint16_t msb = input();
       uint16_t lsb = input();
-      image->data[i] = (msb << 8) | lsb;
-      if (image->data[i] > image->max_val) {
+      netpbm_set_raw(image, i, (msb << 8) | lsb);
+      if (netpbm_get_raw(image, i) > max_val) {
         printf("Error: Found a data sample greater than indicated maximum value");
         return -1;
       }

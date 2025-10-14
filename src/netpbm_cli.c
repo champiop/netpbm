@@ -33,14 +33,14 @@ int main(int argc, char **argv) {
     }
 
     char mode[] = "unknown";
-    switch (image->mode) {
-    case BIT:
+    switch (netpbm_get_mode(image)) {
+    case NETPBM_MODE_BIT:
       strcpy(mode, "bit");
       break;
-    case GRAY:
+    case NETPBM_MODE_GRAY:
       strcpy(mode, "gray");
       break;
-    case RGB:
+    case NETPBM_MODE_RGB:
       strcpy(mode, "rgb");
       break;
     default:
@@ -48,9 +48,10 @@ int main(int argc, char **argv) {
     }
 
     printf("Filename: %s\n", filename_in);
-    printf("Size: %lux%lu\n", image->w, image->h);
+    printf("Size: %lux%lu\n", netpbm_get_width(image),
+           netpbm_get_height(image));
     printf("Mode: %s\n", mode);
-    printf("Maximum value: %d\n", image->max_val);
+    printf("Maximum value: %d\n", netpbm_get_max_val(image));
 
     return EXIT_SUCCESS;
   }
@@ -168,16 +169,16 @@ int main(int argc, char **argv) {
 
     const char *mode_str = argv[5];
 
-    netpbm_mode_t mode = UNKNOWN;
+    netpbm_mode_t mode = NETPBM_MODE_UNKNOWN;
     uint16_t max_val = 255;
     if (strcmp(mode_str, "bit") == 0) {
-      mode = BIT;
+      mode = NETPBM_MODE_BIT;
       max_val = 1;
     } else if (strcmp(mode_str, "gray") == 0) {
-      mode = GRAY;
+      mode = NETPBM_MODE_GRAY;
       max_val = 255;
     } else if (strcmp(mode_str, "rgb") == 0) {
-      mode = RGB;
+      mode = NETPBM_MODE_RGB;
       max_val = 255;
     }
 
