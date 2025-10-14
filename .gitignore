@@ -1,5 +1,4 @@
 build
-tests/bin
 *.ppm
 *.pbm
 *.pgm
