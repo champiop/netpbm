@@ -9,10 +9,10 @@
 // GRAY     =>    Portable Gray Map
 // RGB      =>    Portable Pix  Map
 typedef enum {
-  UNKNOWN = 0,
-  BIT,
-  GRAY,
-  RGB,
+  NETPBM_MODE_UNKNOWN = 0,
+  NETPBM_MODE_BIT,
+  NETPBM_MODE_GRAY,
+  NETPBM_MODE_RGB,
 } netpbm_mode_t;
 
 // Holds the data relevant to an image
